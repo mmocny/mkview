@@ -2,10 +2,44 @@
 
 ################################################################################
 
+def create_view(srcdir,tardir,query):
+	import os
+	#print((srcdir, tardir, query))
+
+	for dirname,dirs,files in os.walk(srcdir):
+		relpath = os.path.relpath(dirname,srcdir)
+		tarpath = os.path.normpath(os.path.join(tardir, relpath))
+
+		try:
+			os.makedirs(tarpath)
+		except OSError:
+			pass
+
+		for filename in files:
+			#print('grep "{0}" {1} > {2}'.format(query, os.path.join(dirname,filename), os.path.join(tarpath,filename)))
+			pass
+
+		for dirname in dirs:
+			if dirname.startswith("."): # TODO: remove hidden by default for now, need a flag eventually
+				dirs.remove(dirname)
+	
+	return tardir
+
 ################################################################################
 
 def main(argv):
-	pass
+	import os
+
+	if (len(argv) != 2 ):
+		print("Require Search String");
+		return
+
+	query = argv[1]
+	curdir = os.path.curdir
+	srcdir = os.path.abspath(curdir) # src = current dir
+	tardir = os.path.join(os.path.expanduser('~/.mkview/views/'), os.path.join("Query{{'{0}'}}".format(query), "Src{{'{0}'}}".format(srcdir)).replace('/','_'))
+	
+	print(create_view(srcdir,tardir,query))
 
 ################################################################################
 
