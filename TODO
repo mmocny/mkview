@@ -1,5 +1,9 @@
 - mkview returns the target directory.  you can run cd $(mkview query) to hop there after you are done (or pushd).  We should add to the README a list of valuable shell alias commands to do this for you.
 
+- cd $(mkview query) is quite useful, but as soon as I change my directory in my view, I lose the ability to cd -.  Could be possible to add a .origin file in the view root and add a command to hop back
+
+- Would also be really useful if you can toggle view on/off.  This could be possible if you just hop between trees src/target.  Might be more complicated at the target, especially if multiple queries(views) exist on that fs.  If they are all rooted at the same folder, you can have a .views file of some sort, and hop to the LRU by default.  However, if you have different roots, then you run into trouble.  Also, now you are littering the fs.  A better solution might be to keep metadata in the users' home directory under .mkview just like the views themselves.  Somehow utilize this list of views to hope around with a few commands.
+
 - Build an indexer!
 
 Ideas:
