@@ -2,44 +2,85 @@
 
 ################################################################################
 
-def create_view(srcdir,tardir,query):
-	import os
-	#print((srcdir, tardir, query))
+import os
 
-	for dirname,dirs,files in os.walk(srcdir):
+################################################################################
+# Constants:
+
+# System Dependant
+SH = '/bin/sh'
+WC = '/usr/bin/wc'
+GREP = '/bin/grep'
+HEAD = '/usr/bin/head'
+FIND = '/usr/bin/find'
+RMDIR = '/bin/rmdir'
+
+HOMEDIR = os.path.expanduser('~')
+VIEWSDIR = os.path.join(HOMEDIR,".mkview/views")
+
+GREPCOMMAND = '{grep} "{query}" {srcfile} | {head} -1'
+FINDRMDIRCOMMAND = '{find} {destdir} -depth -type d -empty -exec {rmdir} {{}} \;'
+
+# System Independant
+VIEWNAME = "query={{'{query}'}}___srcdir={{'{srcdir}'}}"
+
+################################################################################
+
+def create_view(srcdir,destdir,query):
+	import subprocess
+	import shutil
+	import pipes
+
+	for dirname,dirs,files in os.walk(srcdir): # foreach folder,subfolders,files in srcdir tree
 		relpath = os.path.relpath(dirname,srcdir)
-		tarpath = os.path.normpath(os.path.join(tardir, relpath))
+		destpath = os.path.normpath(os.path.join(destdir, relpath))
 
 		try:
-			os.makedirs(tarpath)
+			shutil.rmtree(destpath,ignore_errors=True) # remove the old destdir
+		except:
+			pass
+		try:
+			os.makedirs(destpath) # create the current subfolder in the destination
 		except OSError:
 			pass
 
 		for filename in files:
-			#print('grep "{0}" {1} > {2}'.format(query, os.path.join(dirname,filename), os.path.join(tarpath,filename)))
-			pass
+			srcfile = os.path.join(dirname,filename)
+			destfile = os.path.join(destpath,filename)
+
+			# Here we $(grep ... | head -1) to see if we get at least one "hit"
+			command = [SH, "-c", GREPCOMMAND.format(grep=GREP, query=query, srcfile=srcfile, head=HEAD)]
+			empty = not list(subprocess.Popen(command,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).stdout)
+
+			if not empty: # if we have ourselves a hit, symlink to the source file
+				os.symlink(srcfile, destfile) # TODO: Other options are to pipe grep output, maybe to fifo
 
 		for dirname in dirs:
 			if dirname.startswith("."): # TODO: remove hidden by default for now, need a flag eventually
-				dirs.remove(dirname)
+				dirs.remove(dirname) # ignore certain subdirectories
 	
-	return tardir
+	command = [SH, "-c", FINDRMDIRCOMMAND.format(find=FIND, destdir=pipes.quote(destdir), rmdir=RMDIR)]
+	res = subprocess.call(command) # prune empty dirs
+
+	try:
+		os.makedirs(destdir) # in case the destdir was completely empty, and pruned
+	except OSError:
+		pass
+
+	return destdir
 
 ################################################################################
 
 def main(argv):
-	import os
-
 	if (len(argv) != 2 ):
 		print("Require Search String");
 		return
 
-	query = argv[1]
-	curdir = os.path.curdir
-	srcdir = os.path.abspath(curdir) # src = current dir
-	tardir = os.path.join(os.path.expanduser('~/.mkview/views/'), os.path.join("Query{{'{0}'}}".format(query), "Src{{'{0}'}}".format(srcdir)).replace('/','_'))
+	query = argv[1] # TODO: Implement using getopt / parseargs
+	srcdir = os.path.abspath(os.path.curdir) # TODO: Allow src other than current dir
+	destdir = os.path.join(VIEWSDIR, VIEWNAME.format(query=query,srcdir=srcdir).replace('/','_'))
 	
-	print(create_view(srcdir,tardir,query))
+	print(create_view(srcdir,destdir,query))
 
 ################################################################################
 

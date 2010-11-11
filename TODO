@@ -3,3 +3,7 @@
 - since a subprocess cannot change executing shells' current directory, come up with best strategies/workarounds, currently we just print the target dir, so you can cd $(mkview ...)
 
 - Build and indexer!
+
+Ideas:
+- We match data, what about filenames/paths?
+- Idea: grep is just one of any command/pipe stream.  Perhaps instead of a query, we accept a textual pipe? "filter" command?
