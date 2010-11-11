@@ -1,0 +1,5 @@
+- execute os.system("grep...") or execute some python equivalent.
+- filter out empties, since they are most often useless.
+- since a subprocess cannot change executing shells' current directory, come up with best strategies/workarounds, currently we just print the target dir, so you can cd $(mkview ...)
+
+- Build and indexer!
