@@ -1,8 +1,6 @@
-- execute os.system("grep...") or execute some python equivalent.
-- filter out empties, since they are most often useless.
-- since a subprocess cannot change executing shells' current directory, come up with best strategies/workarounds, currently we just print the target dir, so you can cd $(mkview ...)
+- mkview returns the target directory.  you can run cd $(mkview query) to hop there after you are done (or pushd).  We should add to the README a list of valuable shell alias commands to do this for you.
 
-- Build and indexer!
+- Build an indexer!
 
 Ideas:
 - We match data, what about filenames/paths?
