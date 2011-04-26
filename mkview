@@ -22,7 +22,7 @@ GREPCOMMAND = '{grep} "{query}" {srcfile} | {head} -1'
 FINDRMDIRCOMMAND = '{find} {destdir} -depth -type d -empty -exec {rmdir} {{}} \;'
 
 # System Independant
-VIEWNAME = "query={{'{query}'}}___srcdir={{'{srcdir}'}}"
+VIEWNAME = "query---{query}---___srcdir---{srcdir}---"
 
 ################################################################################
 
